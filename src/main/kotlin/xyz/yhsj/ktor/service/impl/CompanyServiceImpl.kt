@@ -12,6 +12,9 @@ import xyz.yhsj.ktor.entity.user.companies
 import xyz.yhsj.ktor.service.CompanyService
 
 class CompanyServiceImpl : CompanyService {
+    /**
+     * @param db 数据库名称
+     */
     override suspend fun getList(db: String): List<Company> {
         return mysql(db).companies.toList()
     }

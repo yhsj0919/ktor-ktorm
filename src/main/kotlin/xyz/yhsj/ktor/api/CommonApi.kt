@@ -42,11 +42,20 @@ fun Route.commonApi() {
      *   初始化
      */
     getExt("/init") { params, session ->
-        val sql = resources("sql", "test.sql")
-        if (sql != null)
-            mysql("test").initWithSqlFile(sql.inputStream()!!)
 
-        "测试"
+        if (!mysql().dataBaseExists("test"))
+            mysql().createDatabase("test")
+
+        if (!mysql().dataBaseExists("test2"))
+            mysql().createDatabase("test2")
+
+        val sql = resources("sql", "test.sql")
+        if (sql != null) {
+            mysql("test").initWithSqlFile(sql.inputStream()!!)
+            mysql("test2").initWithSqlFile(sql.inputStream()!!)
+        }
+
+        CommonResp.success()
     }
 
     /**
@@ -74,6 +83,7 @@ fun Route.commonApi() {
             }
         }
         companyService.addCompany("test", company)
+        CommonResp.success()
     }
 
 
@@ -87,6 +97,7 @@ fun Route.commonApi() {
             }
         }
         companyService.addCompany("test2", company)
+        CommonResp.success()
     }
 
 
@@ -96,12 +107,6 @@ fun Route.commonApi() {
 
     getExt("/companies2") { params, session ->
         companyService.getList("test2")
-    }
-
-    getExt("/create") { params, session ->
-        val databaseName = "test2" //准备创建的数据库名
-        mysql().createDatabase(databaseName)
-        "完成"
     }
 
 }

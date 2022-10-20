@@ -11,12 +11,13 @@ import java.io.InputStream
  * 创建数据库
  */
 fun Database.createDatabase(database: String): Boolean {
-    this.useConnection { conn ->
+    return this.useConnection { conn ->
         val databaseSql = "create database $database"
-        val size = conn.prepareStatement(databaseSql).use { statement ->
-            statement.executeUpdate()
+        conn.prepareStatement(databaseSql).use { statement ->
+            val size = statement.executeUpdate()
+            size >= 1
         }
-        return size >= 1
+
     }
 }
 
@@ -24,11 +25,12 @@ fun Database.createDatabase(database: String): Boolean {
  * 执行sql
  */
 fun Database.sql(sql: String): Boolean {
-    this.useConnection { conn ->
-        val size = conn.prepareStatement(sql).use { statement ->
-            statement.executeUpdate()
+    return this.useConnection { conn ->
+        conn.prepareStatement(sql).use { statement ->
+            val size = statement.executeUpdate()
+            size >= 1
         }
-        return size >= 1
+
     }
 }
 
@@ -38,16 +40,16 @@ fun Database.sql(sql: String): Boolean {
  * @param database 数据库名称，不传则为当前连接的数据库
  */
 fun Database.tableExists(tableName: String, database: String? = null): Boolean {
-    this.useConnection { conn ->
+    return this.useConnection { conn ->
         val databaseSql =
             "select count(*) count from information_schema.tables where table_schema='${database ?: name}' and table_name='$tableName'"
-        val result = conn.prepareStatement(databaseSql).use { statement ->
-            statement.executeQuery().asIterable().firstOrNull()
-        }
-        if (result != null) {
-            return result.getInt("count") >= 1
-        } else {
-            return false
+        conn.prepareStatement(databaseSql).use { statement ->
+            val result = statement.executeQuery().asIterable().firstOrNull()
+            if (result != null) {
+                result.getInt("count") >= 1
+            } else {
+                false
+            }
         }
     }
 }
@@ -58,17 +60,18 @@ fun Database.tableExists(tableName: String, database: String? = null): Boolean {
  * @param database 数据库名称
  */
 fun Database.dataBaseExists(database: String): Boolean {
-    this.useConnection { conn ->
+    return this.useConnection { conn ->
         val databaseSql =
             "select count(*) count from information_schema.schemata where schema_name='$database'"
-        val result = conn.prepareStatement(databaseSql).use { statement ->
-            statement.executeQuery().asIterable().firstOrNull()
+        conn.prepareStatement(databaseSql).use { statement ->
+            val result = statement.executeQuery().asIterable().firstOrNull()
+            if (result != null) {
+                result.getInt("count") >= 1
+            } else {
+                false
+            }
         }
-        if (result != null) {
-            return result.getInt("count") >= 1
-        } else {
-            return false
-        }
+
     }
 }
 

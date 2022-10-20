@@ -49,12 +49,9 @@ data class SysCompany(
 
 interface Company : Entity<Company> {
     companion object : Entity.Factory<Company>()
-
     val id: Long
     var name: String?
-
     var user: User
-
 }
 
 object Companies : Table<Company>("sys_company") {
@@ -63,6 +60,5 @@ object Companies : Table<Company>("sys_company") {
     val name = varchar("name").bindTo { it.name }
     val user = long("user_id").references(Users) { it.user }
 }
-
 
 val Database.companies get() = this.sequenceOf(Companies)

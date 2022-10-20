@@ -1,6 +1,7 @@
 package xyz.yhsj.ktor.status
 
 import com.google.gson.JsonSyntaxException
+import com.zaxxer.hikari.pool.HikariPool
 import io.ktor.http.*
 import io.ktor.server.plugins.*
 import io.ktor.server.plugins.ContentTransformationException
@@ -14,6 +15,7 @@ import xyz.yhsj.ktor.entity.resp.CommonResp
 import java.io.FileNotFoundException
 import java.sql.SQLException
 import java.sql.SQLNonTransientException
+import java.sql.SQLSyntaxErrorException
 
 fun StatusPagesConfig.statusPage() {
 
@@ -60,9 +62,24 @@ fun StatusPagesConfig.statusPage() {
                     CommonResp.error(msg = "Redis连接异常")
                 }
 
-                is SQLNonTransientException -> {
+//                is SQLSyntaxErrorException -> {
+//                    error.printStackTrace()
+//                    if (error.message?.contains("Unknown database") == true)
+//                        CommonResp.error(msg = "数据库不存在")
+//                    else
+//                        CommonResp.error(msg = "数据库异常")
+//                }
+//
+//                is SQLNonTransientException -> {
+//                    error.printStackTrace()
+//                    CommonResp.error(msg = "数据库异常")
+//                }
+                is HikariPool.PoolInitializationException ->{
                     error.printStackTrace()
-                    CommonResp.error(msg = "数据库异常")
+                    if (error.message?.contains("Unknown database") == true)
+                        CommonResp.error(msg = "数据库不存在")
+                    else
+                        CommonResp.error(msg = "数据库异常")
                 }
 
                 is SQLException -> {
@@ -70,6 +87,8 @@ fun StatusPagesConfig.statusPage() {
                     println(error.message)
                     if (error.message?.contains("database exists") == true)
                         CommonResp.error(msg = "数据库已经存在")
+                    else if (error.message?.contains("Unknown database") == true)
+                        CommonResp.error(msg = "数据库不存在")
                     else
                         CommonResp.error(msg = "数据库异常")
                 }
