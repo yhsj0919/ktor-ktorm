@@ -1,8 +1,11 @@
 package xyz.yhsj.ktor.dao
 
+import java.io.IOException
+import java.io.InputStream
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
+
 
 class CreateDataSource {
     var mysqlDriver = "com.mysql.jdbc.Driver"
@@ -26,7 +29,7 @@ class CreateDataSource {
             val smt = conn.createStatement()
             if (conn != null) {
                 println("数据库连接成功!")
-                var size = smt.executeUpdate(databaseSql)
+                val size = smt.executeUpdate(databaseSql)
                 println("Sql执行完成$size")
                 newConn = DriverManager.getConnection(
                     newUrl + database,
@@ -46,6 +49,7 @@ class CreateDataSource {
         }
         return conn
     }
+
 
     companion object {
         /**

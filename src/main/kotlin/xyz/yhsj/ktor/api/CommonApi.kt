@@ -1,21 +1,57 @@
 package xyz.yhsj.ktor.api
 
+import io.ktor.server.application.*
+import io.ktor.server.http.content.*
+import io.ktor.server.http.content.resources
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.koin.ktor.ext.inject
 import xyz.yhsj.ktor.dao.mysql
+import xyz.yhsj.ktor.entity.resp.CommonResp
 import xyz.yhsj.ktor.entity.user.Company
 import xyz.yhsj.ktor.entity.user.User
-import xyz.yhsj.ktor.ext.createDatabase
-import xyz.yhsj.ktor.ext.getExt
+import xyz.yhsj.ktor.ext.*
 import xyz.yhsj.ktor.service.CompanyService
 import xyz.yhsj.ktor.service.UserService
+import java.io.BufferedReader
+import java.io.File
+import java.io.InputStreamReader
 import java.util.*
 
 
 fun Route.commonApi() {
     val userService: UserService by inject()
     val companyService: CompanyService by inject()
+    /**
+     * 静态资源
+     */
+    static("/") {
+        resources("static")
+    }
+    /**
+     * 测试页面
+     */
+    get("/") {
+        call.respondRedirect("/index.html", permanent = true)
+    }
 
+
+    /**
+     *   初始化
+     */
+    getExt("/init") { params, session ->
+        val sql = resources("sql", "test.sql")
+        if (sql != null)
+            mysql("test").initWithSqlFile(sql.inputStream()!!)
+
+        "测试"
+    }
+
+    /**
+     *    所有用户
+     */
     getExt("/users") { params, session ->
         userService.getAllUsers()
     }

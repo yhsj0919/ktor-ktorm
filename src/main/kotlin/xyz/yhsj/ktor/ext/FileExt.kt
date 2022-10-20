@@ -1,7 +1,5 @@
 package xyz.yhsj.ktor.ext
 
-import io.ktor.http.*
-import io.ktor.server.http.content.*
 import java.nio.file.Paths
 import kotlin.io.path.pathString
 
