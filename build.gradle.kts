@@ -37,8 +37,8 @@ dependencies {
     //https://github.com/ktorio/ktor
     //Ktor2.0用到的依赖，koin3.1.3无法兼容
     implementation("io.ktor:ktor-server-core:$ktor_version")
-    implementation("io.ktor:ktor-server-sessions:$ktor_version")
-    implementation("io.ktor:ktor-server-auth:$ktor_version")
+//    implementation("io.ktor:ktor-server-sessions:$ktor_version")
+//    implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-host-common:$ktor_version")
     implementation("io.ktor:ktor-server-status-pages:$ktor_version")
     implementation("io.ktor:ktor-server-cors:$ktor_version")
@@ -49,9 +49,12 @@ dependencies {
     implementation("io.ktor:ktor-server-call-logging:$ktor_version")
     implementation("io.ktor:ktor-server-auto-head-response:$ktor_version")
     implementation("ch.qos.logback:logback-classic:$logback_version")
-
+//
     implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
     implementation("io.ktor:ktor-serialization-jackson:$ktor_version")
+
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
 
     //校验
     implementation("org.hibernate.validator:hibernate-validator:8.0.0.Final")
@@ -80,6 +83,9 @@ dependencies {
     implementation("org.ktorm:ktorm-support-mysql:$ktormVersion")
     implementation("mysql:mysql-connector-java:$mysqlVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
+    implementation("io.ktor:ktor-server-auth-jvm:2.1.2")
+    implementation("io.ktor:ktor-server-core-jvm:2.1.2")
+    implementation("io.ktor:ktor-server-auth-jwt-jvm:2.1.2")
 
 }
 val compileKotlin: KotlinCompile by tasks

@@ -22,19 +22,6 @@ fun Database.createDatabase(database: String): Boolean {
 }
 
 /**
- * 执行sql
- */
-fun Database.sql(sql: String): Boolean {
-    return this.useConnection { conn ->
-        conn.prepareStatement(sql).use { statement ->
-            val size = statement.executeUpdate()
-            size >= 1
-        }
-
-    }
-}
-
-/**
  * 判断数据库下面的表是否存在
  * @param tableName 表名
  * @param database 数据库名称，不传则为当前连接的数据库
@@ -100,7 +87,7 @@ suspend fun Database.initWithSqlFile(inputStream: InputStream?): Boolean {
                         results.clear()
                     }
                     if (results.endsWith(";")) {
-                        logger.info("执行语句>>${results.toString()}")
+                        logger.info("执行语句>>${results}")
 
                         conn.prepareStatement(results.toString()).use { statement ->
                             statement.executeUpdate()
