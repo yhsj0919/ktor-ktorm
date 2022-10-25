@@ -5,8 +5,10 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
+import xyz.yhsj.ktor.JWT_KEY
 import xyz.yhsj.ktor.entity.resp.CommonResp
-import xyz.yhsj.ktor.ext.sessionOrNull
+import xyz.yhsj.ktor.plugins.simpleJWT
+
 
 /**
  * session校验
@@ -15,71 +17,61 @@ import xyz.yhsj.ktor.ext.sessionOrNull
 fun AuthenticationConfig.jwtCheck() {
     //admin校验
     jwt(name = "admin") {
-        challenge { defaultScheme, realm ->
-
-            val session = call.sessionOrNull<AppSession>()
-            if (session != null && session.user?.companyId == null) {
-                call.respond(HttpStatusCode.OK, CommonResp.error(msg = "换个超管账号再来吧~"))
-            } else {
-                call.respond(HttpStatusCode.OK, CommonResp.login())
-            }
-        }
-
-        validate { credential ->
-
-            UserIdPrincipal(credential.payload.getClaim("id").asString())
-
-//            if (session.user?.type != -1) {
-//                null
-//            } else {
-//                //这里返回null就会调用challenge
-//                session
-//            }
-        }
+        verifier(simpleJWT.verifier)
         skipWhen { call ->
             val skipPath = arrayListOf("/admin/login")
             call.request.path() in skipPath
         }
+
+        validate { credential ->
+            if (credential.payload.getClaim(JWT_KEY).asString() != null) {
+                JWTPrincipal(credential.payload)
+            } else {
+                null
+            }
+        }
+
+        challenge { _, _ ->
+            call.respond(HttpStatusCode.OK, CommonResp.login())
+        }
+
+
     }
     //基础校验
     jwt(name = "basic") {
-        challenge {defaultScheme, realm ->
-            val session = call.sessionOrNull<AppSession>()
-            if (session != null && session.user?.companyId == null) {
-                call.respond(HttpStatusCode.OK, CommonResp.error(msg = "换个普通账号再来吧~"))
-            } else {
-                call.respond(HttpStatusCode.OK, CommonResp.login())
-            }
-        }
-        validate { credential ->
-//            return@validate if (session.user?.companyId == null) {
-//                null
-//            } else {
-//                //这里返回null就会调用challenge
-//                session
-//            }
-            UserIdPrincipal(credential.payload.getClaim("id").asString())
-        }
+        verifier(simpleJWT.verifier)
         skipWhen { call ->
             val skipPath = arrayListOf("/login")
             call.request.path() in skipPath
+        }
+
+        validate { credential ->
+            if (credential.payload.getClaim(JWT_KEY).asString() != null) {
+                JWTPrincipal(credential.payload)
+            } else {
+                null
+            }
+        }
+
+        challenge { _, _ ->
+            call.respond(HttpStatusCode.OK, CommonResp.login())
         }
     }
 
     //基础校验
     jwt(name = "common") {
-        challenge {defaultScheme, realm ->
-            call.respond(HttpStatusCode.OK, CommonResp.login())
-        }
-        validate { credential ->
-//            return@validate if (session.user == null) {
-//                null
-//            } else {
-//                //这里返回null就会调用challenge
-//                session
-//            }
+        verifier(simpleJWT.verifier)
 
-            UserIdPrincipal(credential.payload.getClaim("id").asString())
+        validate { credential ->
+            if (credential.payload.getClaim(JWT_KEY).asString() != null) {
+                JWTPrincipal(credential.payload)
+            } else {
+                null
+            }
+        }
+
+        challenge { _, _ ->
+            call.respond(HttpStatusCode.OK, CommonResp.login())
         }
     }
 

@@ -78,7 +78,7 @@ object Redis {
         return this
     }
 
-    private  fun <T> client(block:  (Jedis) -> T): T? {
+    private fun <T> client(block: (Jedis) -> T): T? {
 
         var client: Jedis? = null
 
@@ -100,7 +100,7 @@ object Redis {
     /**
      * 添加
      */
-     fun set(key: String?, value: String?, params: SetParams?): String? {
+    fun set(key: String?, value: String?, params: SetParams?): String? {
 
         return client {
             it.set(key, value, params)
@@ -112,7 +112,7 @@ object Redis {
     /**
      * 添加
      */
-     fun set(key: String?, value: String?): String? {
+    fun set(key: String?, value: String?): String? {
 
         return client {
             it.set(key, value)
@@ -122,7 +122,7 @@ object Redis {
     /**
      * 查询Key
      */
-     fun keys(key: String?): MutableSet<String>? {
+    fun keys(key: String?): MutableSet<String>? {
         return client {
             it.keys(key)
         }
@@ -131,7 +131,7 @@ object Redis {
     /**
      * 获取
      */
-     fun get(key: String?): String? {
+    fun get(key: String?): String? {
 
         return client {
             it.get(key)
@@ -142,7 +142,7 @@ object Redis {
     /**
      * 删除
      */
-     fun del(key: String?): Long? {
+    fun del(key: String?): Long? {
         return client {
             it.del(key)
         }

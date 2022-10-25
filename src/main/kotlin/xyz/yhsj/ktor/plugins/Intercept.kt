@@ -2,7 +2,10 @@ package xyz.yhsj.ktor.plugins
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
+import xyz.yhsj.ktor.auth.AppSession
+import xyz.yhsj.ktor.ext.json
 import xyz.yhsj.ktor.ext.logger
+import xyz.yhsj.ktor.ext.session
 
 /**
  * 拦截器
@@ -10,6 +13,9 @@ import xyz.yhsj.ktor.ext.logger
 fun Application.configureIntercept() {
     //拦截器
     intercept(ApplicationCallPipeline.Call) {
+
+        println(call.session<AppSession>().json())
+//        logger.info("Authorization:" + call.request.header("Authorization"))
         logger.info("host:" + call.request.host() + ":" + call.request.port() + call.request.path())
     }
 

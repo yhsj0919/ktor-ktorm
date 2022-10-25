@@ -17,7 +17,7 @@ fun Route.webSocketRoute() {
             when (frame) {
                 is Frame.Text -> {
                     try {
-                        val json=frame.readText()
+                        val json = frame.readText()
 //
                         val wsMsg = fromJson<WsMsg>(json)
                         when (wsMsg.type) {
@@ -26,9 +26,11 @@ fun Route.webSocketRoute() {
                                 val wsClient = fromJson<WsClient>(wsMsg.data.toString())
                                 WsUtils.add(this, wsClient)
                             }
+
                             -1 -> {
                                 close(CloseReason(CloseReason.Codes.NORMAL, "Client said BYE"))
                             }
+
                             1 -> {
                                 //消息
                                 WsUtils.send(wsMsg)
@@ -58,15 +60,19 @@ fun Route.webSocketRoute() {
                     }
 
                 }
+
                 is Frame.Binary -> {
                     println("Binary frame received.")
                 }
+
                 is Frame.Close -> {
                     println("Close frame received.")
                 }
+
                 is Frame.Ping -> {
                     println("Ping frame received.")
                 }
+
                 is Frame.Pong -> {
                     println("Pong frame received.")
                 }

@@ -3,19 +3,14 @@ package xyz.yhsj.ktor.status
 import com.google.gson.JsonSyntaxException
 import com.zaxxer.hikari.pool.HikariPool
 import io.ktor.http.*
-import io.ktor.server.plugins.*
 import io.ktor.server.plugins.ContentTransformationException
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.util.*
 import org.koin.core.error.NoBeanDefFoundException
 import redis.clients.jedis.exceptions.JedisConnectionException
 import xyz.yhsj.ktor.entity.resp.CommonResp
-import java.io.FileNotFoundException
 import java.sql.SQLException
-import java.sql.SQLNonTransientException
-import java.sql.SQLSyntaxErrorException
 
 fun StatusPagesConfig.statusPage() {
 
@@ -49,6 +44,7 @@ fun StatusPagesConfig.statusPage() {
                 }
 
                 is NullPointerException -> {
+                    error.printStackTrace()
                     CommonResp.error(msg = "服务器空指针异常")
                 }
 
@@ -62,19 +58,7 @@ fun StatusPagesConfig.statusPage() {
                     CommonResp.error(msg = "Redis连接异常")
                 }
 
-//                is SQLSyntaxErrorException -> {
-//                    error.printStackTrace()
-//                    if (error.message?.contains("Unknown database") == true)
-//                        CommonResp.error(msg = "数据库不存在")
-//                    else
-//                        CommonResp.error(msg = "数据库异常")
-//                }
-//
-//                is SQLNonTransientException -> {
-//                    error.printStackTrace()
-//                    CommonResp.error(msg = "数据库异常")
-//                }
-                is HikariPool.PoolInitializationException ->{
+                is HikariPool.PoolInitializationException -> {
                     error.printStackTrace()
                     if (error.message?.contains("Unknown database") == true)
                         CommonResp.error(msg = "数据库不存在")
@@ -89,6 +73,8 @@ fun StatusPagesConfig.statusPage() {
                         CommonResp.error(msg = "数据库已经存在")
                     else if (error.message?.contains("Unknown database") == true)
                         CommonResp.error(msg = "数据库不存在")
+                    else if (error.message?.contains("doesn't exist") == true)
+                        CommonResp.error(msg = "表不存在")
                     else
                         CommonResp.error(msg = "数据库异常")
                 }

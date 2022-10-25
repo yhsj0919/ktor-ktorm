@@ -5,7 +5,9 @@ import io.ktor.server.auth.*
 import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.routing.*
-import xyz.yhsj.ktor.api.*
+import xyz.yhsj.ktor.api.commonApi
+import xyz.yhsj.ktor.api.jwtApi
+import xyz.yhsj.ktor.api.webSocketRoute
 import xyz.yhsj.ktor.status.statusPage
 
 fun Application.configureRouting() {
@@ -23,7 +25,7 @@ fun Application.configureRouting() {
 
         }
         authenticate("basic") {
-
+            jwtApi()
         }
         authenticate("common") {
 

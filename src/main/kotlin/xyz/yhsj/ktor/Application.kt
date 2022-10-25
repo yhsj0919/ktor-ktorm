@@ -11,7 +11,7 @@ fun main() {
         configureRedis()
         configureSockets()
         configureSerialization()
-        configureHTTP()
+//        configureHTTP()
         configureSecurity()
         configureIntercept()
 //        configureAdministration()
