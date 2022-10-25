@@ -39,7 +39,7 @@ object ValidationUtils {
 
     fun <T> validateList(obj: List<T>?, vararg groups: Class<*>): ValidationResult {
 
-        if (obj == null || obj.isEmpty()) {
+        if (obj.isNullOrEmpty()) {
             return ValidationResult()
         }
         val res = obj.map {
