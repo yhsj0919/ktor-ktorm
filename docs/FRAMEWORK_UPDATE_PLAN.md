@@ -106,8 +106,8 @@ SQL 目录规划：
 
 ```
 resources/db/
-  catalog/          # 主库 Flyway 迁移
-  tenant/           # mode=database 时租户库模板迁移
+  migration/catalog/  # 主库 Flyway 迁移（已定）
+  migration/tenant/   # mode=database 时租户库 Flyway 模板
 ```
 
 ### 与权限模型的关系
@@ -124,6 +124,47 @@ resources/db/
 - **推荐实现顺序**：先实现 `column` 模式与抽象接口，再实现 `database` 模式；接口设计预留两种实现。
 - **不在本期范围**：按租户配置不同 `mode`（hybrid）、已有实例上无迁移地切换模式。
 
+## 架构决策：数据库迁移（Flyway）
+
+数据库 schema 演进与种子数据初始化统一采用 **Flyway**，不自研版本化 SQL 迁移。
+
+### 选型结论
+
+- **迁移工具**：Flyway（Gradle 插件或 `flyway-core` 编程式调用，实施阶段确定）。
+- **替代关系**：逐步取代 `init()` 中手工执行 `ydb.sql` 的方式；`ydb.sql` 内容拆为 Flyway 脚本后废弃。
+- **与 Ktorm 关系**：Flyway 管表结构变更；Ktorm 管运行时 ORM 访问，二者分工明确。
+
+### 脚本目录（规划）
+
+```
+src/main/resources/db/
+  migration/catalog/     # Catalog 主库：V1__init_schema.sql、V2__seed_admin.sql …
+  migration/tenant/      # mode=database 时租户库模板（新建公司时对 db_{id} 执行）
+```
+
+命名遵循 Flyway 约定：`V{version}__{description}.sql`；可重复执行的种子数据慎用，优先幂等 SQL 或单独 seed 脚本 + 版本号管理。
+
+### 执行时机
+
+| 场景 | 方式 |
+|------|------|
+| 应用启动（Catalog） | `Application.module()` 中在 `init()` 之前/之内调用 Flyway migrate Catalog 库 |
+| 新建租户（`database` 模式） | 建库后对 `db_{companyId}` 执行 `migration/tenant` 脚本 |
+| 本地 / CI / 生产升级 | 同一套 Flyway 脚本，凭配置连接不同数据源 |
+
+### 与多租户模式的关系
+
+| `tenant.mode` | Catalog（`migration/catalog`） | 租户库（`migration/tenant`） |
+|---------------|-------------------------------|------------------------------|
+| `column` | 平台表 + 业务表（含 `company_id`） | 不使用 |
+| `database` | 仅平台表 | 每个新公司建库后执行 |
+
+### 实施说明
+
+- **当前阶段**：已定 Flyway 选型，**尚未接入**；现有仍使用 `plugins/Init.kt` + `ydb.sql`。
+- **迁移步骤**：将 `ydb.sql` 拆为 `V1__catalog_schema.sql` 等；默认管理员/角色/权限写入 seed 迁移或 `V*__seed_*.sql`。
+- **注意**：Flyway 脚本一旦发布避免修改已执行版本；结构变更用新 `V{n}__` 脚本。
+
 ## 当前已有
 
 - 工程基础：Kotlin 2.4、Ktor 3.5、Gradle、ShadowJar。
@@ -134,7 +175,7 @@ resources/db/
 - 缓存基础：Redis/Jedis。
 - 通用模型：统一响应、分页响应、基础请求参数、基础实体字段。
 - 基础模块：用户、公司/租户、公司权限、设备、密码。
-- 初始化能力：启动时检查主库并导入基础 SQL。
+- 初始化能力：启动时 `init()` 检查主库并导入单个 `ydb.sql`（**待改为 Flyway**，见「架构决策：数据库迁移」）。
 - 工具扩展：JSON、HTTP 请求封装、文件、日期、Ktorm、拼音、运行环境判断。
 
 ## 当前需要先改造
@@ -166,16 +207,17 @@ resources/db/
 
 改造：
 - 把数据库初始化拆为 Catalog schema/seed 与租户库模板（`database` 模式）。
-- 默认账号、默认角色、默认权限从初始化种子数据创建。
-- 引入 Flyway 或自研版本化 SQL 迁移。
-- 启动初始化需要幂等。
-- `column` 模式：Catalog 迁移包含业务表；`database` 模式：新建公司时建租户库并跑租户迁移。
+- 默认账号、默认角色、默认权限从 Flyway seed 迁移脚本创建，不再在登录流程中创建。
+- **使用 Flyway** 管理版本化 SQL 迁移（见「架构决策：数据库迁移」）。
+- 启动时 Flyway 迁移 Catalog 库；`database` 模式下新建公司时对租户库执行 `migration/tenant`。
+- 迁移脚本需幂等、可重复启动；已执行版本不可改写。
+- `column` 模式：Catalog 迁移包含业务表；`database` 模式：Catalog 仅平台表。
 
 验收：
-- 空库启动能自动创建基础表和默认管理员。
+- 空库启动能自动执行 Flyway 并创建基础表和默认管理员。
 - 已有库启动不会重复插入脏数据。
-- 后续升级能按版本执行 SQL。
-- 两种 `tenant.mode` 各有清晰的迁移路径文档。
+- 后续升级通过新增 `V{n}__` 脚本完成。
+- 两种 `tenant.mode` 各有清晰的 Flyway 迁移路径。
 
 ### 3. 安全认证
 
@@ -309,7 +351,7 @@ resources/db/
 
 1. 增加配置文件和配置读取（含 `tenant.mode` 等多租户项）。
 2. 移除硬编码配置。
-3. 整理启动初始化（区分 Catalog / 租户库迁移目录）。
+3. 接入 **Flyway**：拆分 `ydb.sql` 为 `migration/catalog`，调整 `init()` / 启动流程。
 4. 定义 `TenantMode`、`TenantContext`、`TenantDataAccess` 接口骨架（可先不接入业务）。
 5. 保证 `gradlew test` 通过。
 
@@ -360,9 +402,10 @@ resources/db/
 
 1. 新增 `AppConfig` 和配置文件（含 `tenant.enabled`、`tenant.mode` 等占位项）。
 2. 改造 `DatabaseFactory`、Redis、JWT 使用配置。
-3. 修复乱码注释和接口提示文案。
-4. 把默认管理员创建从登录逻辑迁到初始化逻辑。
-5. 引入密码哈希。
-6. 设计 RBAC 表结构草案（Catalog 主库；与 `sys_permission` 演进方案对齐）。
-7. 补登录、用户查询、权限校验的基础测试。
-8. 确认本文档「架构决策：多租户」与后续实现的接口命名（`catalog()` / `tenant(ctx)`）一致。
+3. 引入 **Flyway** 依赖与 Catalog 库首批迁移脚本（由 `ydb.sql` 拆分）。
+4. 修复乱码注释和接口提示文案。
+5. 把默认管理员创建从登录逻辑迁到 Flyway seed 脚本。
+6. 引入密码哈希。
+7. 设计 RBAC 表结构草案（Catalog 主库；与 `sys_permission` 演进方案对齐）。
+8. 补登录、用户查询、权限校验的基础测试。
+9. 确认本文档「架构决策：多租户」与后续实现的接口命名（`catalog()` / `tenant(ctx)`）一致。
