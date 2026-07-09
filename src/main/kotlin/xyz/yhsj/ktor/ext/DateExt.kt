@@ -1,5 +1,6 @@
 package xyz.yhsj.ktor.ext
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -24,4 +25,12 @@ fun getDayOfLastTime(): Long {
 
     return calendar.timeInMillis + 24 * 60 * 60 * 1000 - 1
 
+}
+
+fun Date.format(pattern: String = "yyyy-MM-dd HH:mm:ss"): String {
+    return SimpleDateFormat(pattern).format(this)
+}
+
+fun Long.formatDate(pattern: String = "yyyy-MM-dd HH:mm:ss"): String {
+    return SimpleDateFormat(pattern).format(Date(this))
 }

@@ -1,6 +1,10 @@
 package xyz.yhsj.ktor.plugins
 
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.databind.JsonSerializer
 import com.fasterxml.jackson.databind.SerializationFeature
+import com.fasterxml.jackson.databind.SerializerProvider
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer
 import io.ktor.serialization.jackson.*
@@ -16,14 +20,21 @@ fun Application.configureSerialization() {
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
+            enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
             // ktorm entity serialize support
             registerModule(KtormModule())
             // java LocalDateTime serialize support
+
             registerModule(JavaTimeModule().apply {
                 addSerializer(
                     LocalDateTime::class.java,
                     LocalDateTimeSerializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
                 )
+            })
+            serializerProvider.setNullKeySerializer(object : JsonSerializer<Any>() {
+                override fun serialize(value: Any, gen: JsonGenerator, serializers: SerializerProvider) {
+                    gen.writeFieldName("")
+                }
             })
         }
     }

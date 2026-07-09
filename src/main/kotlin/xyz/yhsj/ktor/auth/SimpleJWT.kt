@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import redis.clients.jedis.params.SetParams
 import xyz.yhsj.ktor.JWT_KEY
+import xyz.yhsj.ktor.SESSION_TIMEOUT
 import xyz.yhsj.ktor.ext.json
 import xyz.yhsj.ktor.redis.Redis
 
@@ -23,7 +24,7 @@ open class SimpleJWT(secret: String) {
      * @param entity 需要存Redis的内容
      * @param timeOut 超时时间，秒
      */
-    fun sign(key: String = JWT_KEY, value: String, entity: Any, timeOut: Long = 60 * 60): String {
+    fun sign(key: String = JWT_KEY, value: String, entity: Any, timeOut: Long = SESSION_TIMEOUT): String {
 
         Redis.set("session_$value", entity.json(), SetParams.setParams().ex(timeOut))
 

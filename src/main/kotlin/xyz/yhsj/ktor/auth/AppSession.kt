@@ -1,11 +1,9 @@
 package xyz.yhsj.ktor.auth
 
-import io.ktor.server.auth.*
-import xyz.yhsj.ktor.entity.user.SysUser
+import xyz.yhsj.ktor.entity.user.User
 import java.util.*
 
-
-class AppSession(var user: SysUser? = null, var time: Long = Date().time) : Principal
+class AppSession(var user: User? = null, var time: Long = Date().time)
 
 
 

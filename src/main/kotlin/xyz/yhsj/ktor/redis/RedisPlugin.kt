@@ -2,7 +2,7 @@ package xyz.yhsj.ktor.redis
 
 
 import io.ktor.server.application.*
-import io.ktor.util.*
+import io.ktor.utils.io.*
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig
 import redis.clients.jedis.Jedis
 import redis.clients.jedis.JedisPool
@@ -45,7 +45,6 @@ data class RedisConfig(
 
 
 var RedisPlugin = createApplicationPlugin(name = "Redis", ::RedisConfig) {
-    println("Redis is installed!")
     Redis.init(pluginConfig)
 }
 
@@ -53,10 +52,6 @@ object Redis {
     private lateinit var pool: JedisPool
 
     fun init(redisConfig: RedisConfig): Redis {
-
-
-        println(">>>>>>>Redis Init>>>>>>>>>")
-
         val config = JedisPoolConfig()
         config.maxTotal = redisConfig.maxTotal
         config.maxIdle = redisConfig.maxIdle
@@ -70,7 +65,7 @@ object Redis {
         config.testOnCreate = redisConfig.testOnCreate
         pool = JedisPool(
             config,
-            URI(redisConfig.url),
+            URI(redisConfig.url!!),
             redisConfig.connectionTimeout,
             redisConfig.soTimeout
         )
@@ -87,7 +82,7 @@ object Redis {
 //            println(">>>>>>>Redis 创建>>>>>${client}>>>>")
             block(client)
         } catch (e: Exception) {
-//            e.printStackTrace()
+            logger.error("Redis 连接异常:${e.message}")
             null
         } finally {
 //            println(">>>>>>>Redis 关闭>>>>>$client>>>>")

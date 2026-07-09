@@ -7,6 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import xyz.yhsj.ktor.JWT_KEY
 import xyz.yhsj.ktor.entity.resp.CommonResp
+import xyz.yhsj.ktor.ext.session
 import xyz.yhsj.ktor.plugins.simpleJWT
 
 
@@ -46,7 +47,8 @@ fun AuthenticationConfig.jwtCheck() {
         }
 
         validate { credential ->
-            if (credential.payload.getClaim(JWT_KEY).asString() != null) {
+            val session = credential.session<AppSession>()
+            if (session?.user != null) {
                 JWTPrincipal(credential.payload)
             } else {
                 null

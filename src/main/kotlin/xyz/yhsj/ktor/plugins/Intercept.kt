@@ -2,10 +2,7 @@ package xyz.yhsj.ktor.plugins
 
 import io.ktor.server.application.*
 import io.ktor.server.request.*
-import xyz.yhsj.ktor.auth.AppSession
-import xyz.yhsj.ktor.ext.json
 import xyz.yhsj.ktor.ext.logger
-import xyz.yhsj.ktor.ext.session
 
 /**
  * 拦截器
@@ -13,13 +10,18 @@ import xyz.yhsj.ktor.ext.session
 fun Application.configureIntercept() {
     //拦截器
     intercept(ApplicationCallPipeline.Call) {
-
-        println(call.session<AppSession>().json())
-//        logger.info("Authorization:" + call.request.header("Authorization"))
-        logger.info("host:" + call.request.host() + ":" + call.request.port() + call.request.path())
+        if (!call.request.path().startsWith("/openapi")) {
+//            logger.info("Authorization:" + call.request.header("Authorization"))
+//            logger.info("User-Agent:" + call.request.header("User-Agent"))
+//        call.request.headers.forEach { s, strings ->
+//            logger.info("$s=>${strings}")
+//        }
+//        println(call.request.cookies.rawCookies)
+            logger.info("${call.request.httpMethod.value} http://" + call.request.host() + ":" + call.request.port() + call.request.path())
+        }
     }
 
-    //TODO 以后配置防止重复点击
+    //以后配置防止重复点击
     //记录每个session的请求连接时间,连续两次的时间放在redis做个对比,小于某个时间拦截
 }
 

@@ -7,13 +7,13 @@ import xyz.yhsj.ktor.BaseDataBase
 import xyz.yhsj.ktor.MySqlHost
 import xyz.yhsj.ktor.MySqlPassWord
 import xyz.yhsj.ktor.MySqlUserName
+import java.util.concurrent.TimeUnit
 
 
 private val dbs = HashMap<String, Database>()
 
 @Synchronized
 fun mysql(database: String = BaseDataBase): Database {
-
     return if (dbs.containsKey(database)) {
         dbs[database]!!
     } else {
@@ -21,9 +21,11 @@ fun mysql(database: String = BaseDataBase): Database {
             jdbcUrl = "jdbc:mysql://$MySqlHost/$database"
             username = MySqlUserName
             password = MySqlPassWord
-            maximumPoolSize = 3
+            maximumPoolSize = 5
+            connectionTimeout = TimeUnit.SECONDS.toMillis(10)
         }))
         dbs[database] = db
+        db.logger.isDebugEnabled()
         db
     }
 }

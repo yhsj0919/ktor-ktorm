@@ -11,7 +11,7 @@ import xyz.yhsj.ktor.redis.RedisPlugin
 fun Application.configureRedis() {
     install(RedisPlugin) {
         url = "redis://:$REDIS_PASSWORD@$REDIS_HOST/0"
-        connectionTimeout = 60 * 1000
+        connectionTimeout = 5 * 1000
         minIdle = 4
 //        testOnBorrow = true
     }

@@ -8,14 +8,14 @@ package xyz.yhsj.ktor.entity.resp
  * @param totalElements
  */
 class PageUtil(
-    // 每页大小
-    var size: Int,
     //当前页数
     page: Int,
+    // 每页大小
+    var size: Int,
     // 总共有多少条数据
     var totalElements: Long,
 
-    content: List<Any>?
+    content: List<Any>?,
 ) {
 
     /**

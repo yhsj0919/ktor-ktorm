@@ -5,78 +5,45 @@ import xyz.yhsj.ktor.entity.websocket.WsClient
 import xyz.yhsj.ktor.entity.websocket.WsMsg
 
 object WsUtils {
-    private val stoneClients = HashMap<WsClient, DefaultWebSocketSession>()
+    private val appClients = HashMap<WsClient, DefaultWebSocketSession>()
     private val managerClients = HashMap<WsClient, DefaultWebSocketSession>()
     private val closeClients = ArrayList<WsClient>()
 
-    /**
-     * 获取石头客户端
-     */
-    suspend fun getStoneClient(companyId: String): List<WsClient> {
-        //清理一下失效的客户端
-        stoneClients.cleanClient()
-
-        return stoneClients.keys.filter { it.companyId == companyId }.toList()
+    suspend fun getAppClients(companyId: String): List<WsClient> {
+        appClients.cleanClient()
+        return appClients.keys.filter { it.companyId == companyId }.toList()
     }
 
     suspend fun add(ws: DefaultWebSocketSession, client: WsClient) {
         if (client.type == 0) {
-            if (ws !in stoneClients.values) {
-                stoneClients[client] = ws
-                println("已添加客户端")
-            } else {
-                println("客户端已存在")
+            if (ws !in appClients.values) {
+                appClients[client] = ws
             }
-
-            //清理一下失效的客户端
-            stoneClients.cleanClient()
+            appClients.cleanClient()
         }
 
-        if (client.type == 1) {
-            if (ws !in managerClients.values) {
-                managerClients[client] = ws
-                try {
-                    ws.send(mapOf("code" to 200, "msg" to "已连接").json())
-                } catch (e: Exception) {
-                    println("客户端退出了，删掉")
-                }
-
-                println("已添加客户端")
-            } else {
-                println("客户端已存在")
-            }
+        if (client.type == 1 && ws !in managerClients.values) {
+            managerClients[client] = ws
+            sendConnected(ws)
         }
-
     }
 
     suspend fun send(data: WsMsg) {
-
         if (data.distribute == 1) {
             managerClients.filterKeys { it.companyId == data.companyId }.forEach {
-                try {
-                    it.value.send(mapOf("code" to 201, "msg" to "已连接", "data" to data.data).json())
-                } catch (e: Exception) {
-                    println("客户端退出了，删掉")
-                    closeClients.add(it.key)
-                }
+                sendToClient(it.key, it.value, data)
             }
-
         }
 
         if (data.distribute == 2) {
             managerClients.filterKeys { it.companyId == data.companyId && it.userId == data.toU }.forEach {
-                try {
-                    it.value.send(mapOf("code" to 201, "msg" to "已连接", "data" to data.data).json())
-                } catch (e: Exception) {
-                    println("客户端退出了，删掉")
-                    closeClients.add(it.key)
-                }
+                sendToClient(it.key, it.value, data)
             }
         }
 
         closeClients.forEach {
             if (it.type == 0) {
-                stoneClients.remove(it)
+                appClients.remove(it)
             }
             if (it.type == 1) {
                 managerClients.remove(it)
@@ -86,20 +53,26 @@ object WsUtils {
         closeClients.clear()
     }
 
+    private suspend fun sendToClient(client: WsClient, session: DefaultWebSocketSession, data: WsMsg) {
+        try {
+            session.send(mapOf("code" to 201, "msg" to "connected", "data" to data.data).json())
+        } catch (e: Exception) {
+            closeClients.add(client)
+        }
+    }
 }
 
-/**
- * 清理一下失效的客户端
- */
+private suspend fun sendConnected(session: DefaultWebSocketSession) {
+    session.send(mapOf("code" to 200, "msg" to "connected").json())
+}
+
 suspend fun HashMap<WsClient, DefaultWebSocketSession>.cleanClient() {
     val closeClients = ArrayList<WsClient>()
 
-    //清理一下失效的客户端
     this.forEach {
         try {
-            it.value.send(mapOf("code" to 200, "msg" to "已连接").json())
+            sendConnected(it.value)
         } catch (e: Exception) {
-            println("客户端退出了，删掉")
             closeClients.add(it.key)
         }
     }
@@ -107,6 +80,4 @@ suspend fun HashMap<WsClient, DefaultWebSocketSession>.cleanClient() {
     closeClients.forEach {
         this.remove(it)
     }
-    closeClients.clear()
 }
-

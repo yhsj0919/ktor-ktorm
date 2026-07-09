@@ -1,23 +1,33 @@
 package xyz.yhsj.ktor
 
+import io.ktor.server.application.Application
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import xyz.yhsj.ktor.api.configureApi
 import xyz.yhsj.ktor.plugins.*
 
 
-fun main() {
-    embeddedServer(Netty, port = 8081, host = "0.0.0.0") {
-        configureKoin()
-        configureRedis()
-        configureSockets()
-        configureSerialization()
+fun main(args: Array<String>) {
+
+    val port = args.firstOrNull { it.startsWith("-port=") }?.replace("-port=", "")?.toInt()
+
+    embeddedServer(Netty, port = port ?: 80, module = Application::module).start(wait = true)
+}
+
+fun Application.module() {
+    configureKoin()
+    configureRedis()
+    configureSockets()
+    configureSerialization()
 //        configureHTTP()
-        configureSecurity()
-        configureIntercept()
+    configureSecurity()
+    configureIntercept()
 //        configureAdministration()
-        configureMonitoring()
-        configureRouting()
-    }.start(wait = true)
+    configureMonitoring()
+    configureRouting()
+    configureApi()
+    configureTemplating()
+    init()
 }
 
 

@@ -10,7 +10,7 @@ class CommonResp(
     val msg: String = "操作成功",
     data: Any? = null,
     var obj: Any? = null,
-    var page: PageResp? = null
+    var page: PageResp? = null,
 ) : Serializable {
     var data: Any? = null
         set(value) {
@@ -24,8 +24,6 @@ class CommonResp(
                         number = value.numberOfElements,
                         totalPages = value.totalPages.toInt(),
                         totalSize = value.totalElements
-
-
                     )
                     value.content ?: ArrayList<Any>()
                 }
@@ -66,9 +64,6 @@ class CommonResp(
 
     }
 
-    fun isSuccess(): Boolean {
-        return code == 200
-    }
 
     override fun toString(): String {
         return this.json()

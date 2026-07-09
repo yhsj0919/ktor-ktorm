@@ -1,17 +1,39 @@
 package xyz.yhsj.ktor.service
 
 
-import xyz.yhsj.ktor.entity.user.User
+import xyz.yhsj.ktor.auth.AppSession
+import xyz.yhsj.ktor.entity.resp.CommonResp
+import xyz.yhsj.ktor.entity.user.SysUser
 
 interface UserService {
 
-    suspend fun getAllUsers(): List<User>
-    suspend fun addUser(user:User): User
 
-    suspend fun getUserByEmail(email: String): User?
+    /**
+     * 登录
+     */
+    suspend fun login(params: SysUser): CommonResp
 
-    suspend fun getUserById(id: Long): User
+    /**
+     * 删除用户
+     */
+    suspend fun deleteUser(params: SysUser, session: AppSession): CommonResp
 
-    suspend fun loginAndGetUser(email: String, password: String): User
+    /**
+     * 注册
+     */
+    suspend fun register(params: SysUser, session: AppSession): Any
+
+    /**
+     * 获取所有用户
+     */
+    suspend fun getUsers(): Any
+
+    suspend fun getUsersWithCompany(params: SysUser, sessions: AppSession): Any
+
+    /**
+     * 修改用户
+     */
+    suspend fun editUser(params: SysUser, session: AppSession): CommonResp
 
 }
+

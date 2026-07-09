@@ -17,4 +17,5 @@ class VG {
     interface Admin
     interface OrderExit
     interface OrderEnter
+    interface OrderAppend
 }
