@@ -53,7 +53,7 @@ class CommonResp(
         fun notFound(code: Int = 404, msg: String): CommonResp = CommonResp(code = code, msg = msg)
 
         @JvmStatic
-        fun login(code: Int = 403, msg: String = "需要登录"): CommonResp = CommonResp(code = code, msg = msg)
+        fun login(code: Int = 401, msg: String = "需要登录"): CommonResp = CommonResp(code = code, msg = msg)
 
         @JvmStatic
         fun empty(msg: String = "暂无数据"): CommonResp = CommonResp(msg = msg)

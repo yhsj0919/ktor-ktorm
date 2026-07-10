@@ -33,7 +33,7 @@ fun AuthenticationConfig.jwtCheck() {
         }
 
         challenge { _, _ ->
-            call.respond(HttpStatusCode.OK, CommonResp.login())
+            call.respond(HttpStatusCode.Unauthorized, CommonResp.login())
         }
 
 
@@ -56,7 +56,7 @@ fun AuthenticationConfig.jwtCheck() {
         }
 
         challenge { _, _ ->
-            call.respond(HttpStatusCode.OK, CommonResp.login())
+            call.respond(HttpStatusCode.Unauthorized, CommonResp.login())
         }
     }
 
@@ -73,7 +73,7 @@ fun AuthenticationConfig.jwtCheck() {
         }
 
         challenge { _, _ ->
-            call.respond(HttpStatusCode.OK, CommonResp.login())
+            call.respond(HttpStatusCode.Unauthorized, CommonResp.login())
         }
     }
 
