@@ -5,10 +5,10 @@ import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import xyz.yhsj.ktor.JWT_KEY
-import xyz.yhsj.ktor.entity.resp.CommonResp
-import xyz.yhsj.ktor.ext.session
-import xyz.yhsj.ktor.plugins.simpleJWT
+import xyz.yhsj.ktor.infrastructure.config.JWT_KEY
+import xyz.yhsj.ktor.api.model.response.CommonResp
+import xyz.yhsj.ktor.auth.extension.session
+import xyz.yhsj.ktor.infrastructure.plugins.simpleJWT
 
 
 /**

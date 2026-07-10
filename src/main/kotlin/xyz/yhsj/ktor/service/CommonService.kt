@@ -1,6 +1,6 @@
 package xyz.yhsj.ktor.service
 
-import xyz.yhsj.ktor.entity.resp.CommonResp
+import xyz.yhsj.ktor.api.model.response.CommonResp
 
 /**
  * 通用接口

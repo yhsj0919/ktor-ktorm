@@ -64,10 +64,13 @@ dependencies {
     implementation("org.ktorm:ktorm-support-mysql:4.2.1")
     implementation("com.mysql:mysql-connector-j:9.7.0")
     implementation("com.zaxxer:HikariCP:7.1.0")
+    implementation("org.flywaydb:flyway-core:12.10.0")
+    implementation("org.flywaydb:flyway-mysql:12.10.0")
 
     implementation("com.belerweb:pinyin4j:2.5.1")
 
     testImplementation(kotlin("test"))
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
 }
 
 tasks.test {

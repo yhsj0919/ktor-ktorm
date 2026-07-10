@@ -4,7 +4,20 @@ import io.ktor.server.application.Application
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import xyz.yhsj.ktor.api.configureApi
-import xyz.yhsj.ktor.plugins.*
+import xyz.yhsj.ktor.common.util.logger
+import xyz.yhsj.ktor.infrastructure.cache.configureRedis
+import xyz.yhsj.ktor.infrastructure.plugins.configureFlyway
+import xyz.yhsj.ktor.infrastructure.plugins.configureHTTP
+import xyz.yhsj.ktor.infrastructure.plugins.configureInit
+import xyz.yhsj.ktor.infrastructure.plugins.configureIntercept
+import xyz.yhsj.ktor.infrastructure.plugins.configureKoin
+import xyz.yhsj.ktor.infrastructure.plugins.configureMonitoring
+import xyz.yhsj.ktor.infrastructure.plugins.configureRouting
+import xyz.yhsj.ktor.infrastructure.plugins.configureSecurity
+import xyz.yhsj.ktor.infrastructure.plugins.configureSerialization
+import xyz.yhsj.ktor.infrastructure.plugins.configureSockets
+import xyz.yhsj.ktor.infrastructure.plugins.configureTemplating
+import xyz.yhsj.ktor.persistence.database.configureDatabaseLifecycle
 
 
 fun main(args: Array<String>) {
@@ -15,11 +28,18 @@ fun main(args: Array<String>) {
 }
 
 fun Application.module() {
+    configureDatabaseLifecycle()
+    configureFlyway()
+    configureInit({
+        task("初始化缓存") {
+            // 服务器启动后执行
+        }
+    })
     configureKoin()
     configureRedis()
     configureSockets()
     configureSerialization()
-//        configureHTTP()
+    configureHTTP()
     configureSecurity()
     configureIntercept()
 //        configureAdministration()
@@ -27,7 +47,6 @@ fun Application.module() {
     configureRouting()
     configureApi()
     configureTemplating()
-    init()
 }
 
 

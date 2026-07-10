@@ -1,12 +1,12 @@
 package xyz.yhsj.ktor.api
 
-import io.ktor.server.application.*
-import io.ktor.server.auth.*
-import io.ktor.server.routing.*
-import xyz.yhsj.ktor.api.apis.commonApi
-import xyz.yhsj.ktor.api.apis.companyApi
-import xyz.yhsj.ktor.api.apis.userApi
-import xyz.yhsj.ktor.api.apis.webSocketApi
+import io.ktor.server.application.Application
+import io.ktor.server.auth.authenticate
+import io.ktor.server.routing.routing
+import xyz.yhsj.ktor.api.route.commonApi
+import xyz.yhsj.ktor.api.route.companyApi
+import xyz.yhsj.ktor.api.route.userApi
+import xyz.yhsj.ktor.api.route.webSocketApi
 
 fun Application.configureApi() {
     routing {

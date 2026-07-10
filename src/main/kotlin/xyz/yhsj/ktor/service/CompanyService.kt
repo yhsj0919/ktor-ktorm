@@ -2,10 +2,10 @@ package xyz.yhsj.ktor.service
 
 
 import xyz.yhsj.ktor.auth.AppSession
-import xyz.yhsj.ktor.entity.company.SysCompany
-import xyz.yhsj.ktor.entity.company.SysCompanyPermission
-import xyz.yhsj.ktor.entity.resp.CommonResp
-import xyz.yhsj.ktor.entity.user.SysUser
+import xyz.yhsj.ktor.persistence.entity.company.SysCompany
+import xyz.yhsj.ktor.persistence.entity.company.SysCompanyPermission
+import xyz.yhsj.ktor.api.model.response.CommonResp
+import xyz.yhsj.ktor.persistence.entity.user.SysUser
 
 /**
  * 公司

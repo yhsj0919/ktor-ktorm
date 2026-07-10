@@ -4,10 +4,10 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import redis.clients.jedis.params.SetParams
-import xyz.yhsj.ktor.JWT_KEY
-import xyz.yhsj.ktor.SESSION_TIMEOUT
-import xyz.yhsj.ktor.ext.json
-import xyz.yhsj.ktor.redis.Redis
+import xyz.yhsj.ktor.infrastructure.config.JWT_KEY
+import xyz.yhsj.ktor.infrastructure.config.SESSION_TIMEOUT
+import xyz.yhsj.ktor.common.json.json
+import xyz.yhsj.ktor.infrastructure.cache.Redis
 
 /**
  * jwt 签名

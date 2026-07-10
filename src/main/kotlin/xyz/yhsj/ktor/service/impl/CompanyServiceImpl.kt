@@ -4,14 +4,14 @@ import org.ktorm.dsl.*
 import org.ktorm.entity.*
 import org.ktorm.support.mysql.insertOrUpdate
 import xyz.yhsj.ktor.auth.AppSession
-import xyz.yhsj.ktor.dao.mysql
-import xyz.yhsj.ktor.entity.company.*
-import xyz.yhsj.ktor.entity.permission.Permission
-import xyz.yhsj.ktor.entity.permission.permissions
-import xyz.yhsj.ktor.entity.resp.CommonResp
-import xyz.yhsj.ktor.entity.resp.PageUtil
-import xyz.yhsj.ktor.entity.user.*
-import xyz.yhsj.ktor.ext.DESCrypt
+import xyz.yhsj.ktor.persistence.database.mysql
+import xyz.yhsj.ktor.persistence.entity.company.*
+import xyz.yhsj.ktor.persistence.entity.permission.Permission
+import xyz.yhsj.ktor.persistence.entity.permission.permissions
+import xyz.yhsj.ktor.api.model.response.CommonResp
+import xyz.yhsj.ktor.api.model.response.PageUtil
+import xyz.yhsj.ktor.persistence.entity.user.*
+import xyz.yhsj.ktor.auth.crypto.DESCrypt
 import xyz.yhsj.ktor.service.CompanyService
 import java.util.Date
 
