@@ -5,7 +5,7 @@ import io.ktor.server.http.content.staticResources
 import io.ktor.server.response.respondRedirect
 import io.ktor.server.routing.Route
 import xyz.yhsj.ktor.api.extension.getExt
-import xyz.yhsj.ktor.infrastructure.config.imageRootPath
+import xyz.yhsj.ktor.base.config.imageRootPath
 import java.io.File
 
 fun Route.commonApi() {

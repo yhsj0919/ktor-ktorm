@@ -32,11 +32,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import xyz.yhsj.ktor.auth.AppSession
 import xyz.yhsj.ktor.api.model.response.CommonResp
+import xyz.yhsj.ktor.api.model.response.ResponseCode
 import xyz.yhsj.ktor.auth.extension.session
+import xyz.yhsj.ktor.auth.extension.requirePermissions
 import xyz.yhsj.ktor.common.json.fromJson
 import xyz.yhsj.ktor.common.json.json
 import xyz.yhsj.ktor.common.util.new
-import xyz.yhsj.ktor.infrastructure.config.imageRootPath
+import xyz.yhsj.ktor.base.config.imageRootPath
 import xyz.yhsj.ktor.common.validation.ValidationUtils
 import java.io.File
 import java.io.InputStream
@@ -55,7 +57,17 @@ suspend fun ApplicationCall.success(block: suspend () -> Any?) {
     if (data is Unit || data == null) {
         respond(HttpStatusCode.OK, CommonResp.success())
     } else {
-        this.respond(HttpStatusCode.OK, data)
+        val status = when (data) {
+            is CommonResp -> when (data.code) {
+                ResponseCode.UNAUTHORIZED -> HttpStatusCode.Unauthorized
+                ResponseCode.FORBIDDEN -> HttpStatusCode.Forbidden
+                ResponseCode.CONFLICT -> HttpStatusCode.Conflict
+                ResponseCode.SYSTEM_NOT_INITIALIZED -> HttpStatusCode.ServiceUnavailable
+                else -> HttpStatusCode.OK
+            }
+            else -> HttpStatusCode.OK
+        }
+        this.respond(status, data)
     }
 }
 
@@ -90,11 +102,13 @@ suspend fun <T : Any> List<T>.validated(vararg groups: Class<*>, block: suspend 
  */
 inline fun Route.getExt(
     path: String,
+    permissions: Array<String> = emptyArray(),
 
     crossinline body: suspend RoutingContext.(params: Map<String, String?>, session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Get) {
         handle {
+            call.requirePermissions(permissions)
             val params = call.parameters.toMap().map { it.key to it.value.firstOrNull() }.toMap()
             call.success {
                 //这里session不为空，前面有校验，需要session的校验通过才会来到这里，不需要session的不关注这个属性
@@ -111,11 +125,13 @@ inline fun Route.getExt(
  */
 inline fun <reified R : Any> Route.getExt(
     path: String,
-    vararg validate: Class<*>,
+    validate: Array<Class<*>> = emptyArray(),
+    permissions: Array<String> = emptyArray(),
     crossinline body: suspend RoutingContext.(R, session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Get) {
         handle {
+            call.requirePermissions(permissions)
 
             val params = call.parameters.toMap().map { it.key to it.value.firstOrNull() }.toMap()
             val data: R = if (params.containsKey("params")) {
@@ -142,11 +158,13 @@ inline fun <reified R : Any> Route.getExt(
  */
 inline fun <reified R : Any> Route.postExt(
     path: String,
-    vararg validate: Class<*>,
+    validate: Array<Class<*>> = emptyArray(),
+    permissions: Array<String> = emptyArray(),
     crossinline body: suspend RoutingContext.(R, session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Post) {
         handle {
+            call.requirePermissions(permissions)
             //这里初始化一个空参数，
             val data: R = call.receiveJsonOrNull() ?: new()
             call.success {
@@ -165,10 +183,12 @@ inline fun <reified R : Any> Route.postExt(
  */
 inline fun Route.postExt(
     path: String,
+    permissions: Array<String> = emptyArray(),
     crossinline body: suspend RoutingContext.(session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Post) {
         handle {
+            call.requirePermissions(permissions)
             call.success {
                 body(call.session())
             }
@@ -182,11 +202,13 @@ inline fun Route.postExt(
  */
 inline fun <reified R : Any> Route.postFormExt(
     path: String,
-    vararg validate: Class<*>,
+    validate: Array<Class<*>> = emptyArray(),
+    permissions: Array<String> = emptyArray(),
     crossinline body: suspend RoutingContext.(R, session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Post) {
         handle {
+            call.requirePermissions(permissions)
             val params = call.receiveParameters().toFormMap()
             val data: R = if (R::class.isSubclassOf(Map::class)) {
                 params as R
@@ -214,11 +236,13 @@ inline fun <reified R : Any> Route.postFormExt(
  */
 inline fun <reified R : Any> Route.postFileExt(
     path: String,
-    vararg validate: Class<*>,
+    validate: Array<Class<*>> = emptyArray(),
+    permissions: Array<String> = emptyArray(),
     crossinline body: suspend RoutingContext.(R, files: ArrayList<PartFile>, session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Post) {
         handle {
+            call.requirePermissions(permissions)
             //这里初始化一个空参数，
             val part = call.receiveMultiParts()
             val params = part.items
@@ -246,10 +270,12 @@ inline fun <reified R : Any> Route.postFileExt(
  */
 inline fun Route.postFileExt(
     path: String,
+    permissions: Array<String> = emptyArray(),
     crossinline body: suspend RoutingContext.(params: Map<String, Any?>, files: ArrayList<PartFile>, session: AppSession) -> Any,
 ): Route {
     return route(path, HttpMethod.Post) {
         handle {
+            call.requirePermissions(permissions)
             val part = call.receiveMultiParts()
 
             val params = part.items

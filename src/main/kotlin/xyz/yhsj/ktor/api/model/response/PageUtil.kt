@@ -54,14 +54,16 @@ class PageUtil(
         }
 
     init {
+        require(size > 0) { "分页大小必须大于 0" }
+        require(totalElements >= 0) { "数据总数不能小于 0" }
 
         this.page = if (page < 0) 0 else page
 
-        this.totalPages = if (totalElements % size == 0L) totalElements / size else totalElements / size + 1
+        this.totalPages = if (totalElements == 0L) 0 else (totalElements + size - 1) / size
 
-        this.isFirst = page == 0
+        this.isFirst = this.page == 0
 
-        this.isLast = page + 1 >= this.totalPages
+        this.isLast = this.totalPages == 0L || this.page + 1 >= this.totalPages
 
         this.content = content
 

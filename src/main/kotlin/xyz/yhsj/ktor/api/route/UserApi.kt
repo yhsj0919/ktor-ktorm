@@ -5,27 +5,41 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
 import org.koin.ktor.ext.inject
 import xyz.yhsj.ktor.auth.AppSession
-import xyz.yhsj.ktor.persistence.entity.user.SysUser
-import xyz.yhsj.ktor.persistence.entity.user.User
+import xyz.yhsj.ktor.auth.SessionUser
+import xyz.yhsj.ktor.dao.entity.user.User
+import xyz.yhsj.ktor.api.model.request.user.UserCreateRequest
+import xyz.yhsj.ktor.api.model.request.user.UserDeleteRequest
+import xyz.yhsj.ktor.api.model.request.user.UserLoginRequest
+import xyz.yhsj.ktor.api.model.request.user.UserUpdateRequest
 import xyz.yhsj.ktor.api.extension.postExt
-import xyz.yhsj.ktor.infrastructure.plugins.simpleJWT
+import xyz.yhsj.ktor.api.model.response.toUserInfo
+import xyz.yhsj.ktor.base.plugins.simpleJWT
 import xyz.yhsj.ktor.service.UserService
-import xyz.yhsj.ktor.common.validation.VG
 
-fun Route.userApi() {
+fun Route.loginApi() {
     val userService by inject<UserService>()
-    /**
-     * 登录
-     */
-    postExt<SysUser>("/login", VG.Login::class.java) { params, _ ->
+
+    postExt<UserLoginRequest>("/login") { params, _ ->
         val rasp = userService.login(params)
         val user = rasp.data as User?
         if (rasp.code == 200 && user?.id != null) {
-            val token = simpleJWT.sign(value = user.id.toString(), entity = AppSession(user = user))
+            val sessionUser = SessionUser(
+                id = user.id,
+                userName = user.userName,
+                roleId = user.roleId,
+                nickName = user.nickName,
+                type = user.type,
+            )
+            val token = simpleJWT.sign(value = user.id.toString(), entity = AppSession(user = sessionUser))
             call.response.header("Authorization", "Bearer $token")
+            rasp.data = user.toUserInfo()
         }
         rasp
     }
+}
+
+fun Route.userApi() {
+    val userService by inject<UserService>()
 
     route("/user") {
 
@@ -33,14 +47,14 @@ fun Route.userApi() {
         /**
          * 删除
          */
-        postExt<SysUser>("/delete", VG.Delete::class.java) { user, session ->
+        postExt<UserDeleteRequest>("/delete") { user, session ->
             userService.deleteUser(user, session)
         }
 
         /**
          * 注册
          */
-        postExt<SysUser>("/register", VG.Add::class.java) { user, session ->
+        postExt<UserCreateRequest>("/register") { user, session ->
             userService.register(user, session)
         }
 
@@ -52,16 +66,9 @@ fun Route.userApi() {
         }
 
         /**
-         * 列表
-         */
-        postExt<SysUser>("/listWithCompany") { params, session ->
-            userService.getUsersWithCompany(params, session)
-        }
-
-        /**
          * 删除
          */
-        postExt<SysUser>("/edit", VG.Update::class.java) { user, session ->
+        postExt<UserUpdateRequest>("/edit") { user, session ->
             userService.editUser(user, session)
         }
 

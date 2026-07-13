@@ -7,9 +7,9 @@ import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import redis.clients.jedis.params.SetParams
 import xyz.yhsj.ktor.common.util.new
-import xyz.yhsj.ktor.infrastructure.config.JWT_KEY
-import xyz.yhsj.ktor.infrastructure.config.SESSION_TIMEOUT
-import xyz.yhsj.ktor.infrastructure.cache.Redis
+import xyz.yhsj.ktor.base.config.JWT_KEY
+import xyz.yhsj.ktor.base.config.SESSION_TIMEOUT
+import xyz.yhsj.ktor.base.cache.Redis
 
 inline fun <reified T> JWTCredential.session(claim: String = JWT_KEY): T? {
     val id = payload.getClaim(claim).asString()
@@ -17,7 +17,7 @@ inline fun <reified T> JWTCredential.session(claim: String = JWT_KEY): T? {
         null
     } else {
         val text = Redis.get("session_$id")
-        return text?.toModel()
+        text?.toModel()
     }
 }
 

@@ -3,12 +3,11 @@ package xyz.yhsj.ktor.auth
 import io.ktor.http.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
-import xyz.yhsj.ktor.infrastructure.config.JWT_KEY
+import xyz.yhsj.ktor.base.config.JWT_KEY
 import xyz.yhsj.ktor.api.model.response.CommonResp
 import xyz.yhsj.ktor.auth.extension.session
-import xyz.yhsj.ktor.infrastructure.plugins.simpleJWT
+import xyz.yhsj.ktor.base.plugins.simpleJWT
 
 
 /**
@@ -19,11 +18,6 @@ fun AuthenticationConfig.jwtCheck() {
     //admin校验
     jwt(name = "admin") {
         verifier(simpleJWT.verifier)
-        skipWhen { call ->
-            val skipPath = arrayListOf("/admin/login")
-            call.request.path() in skipPath
-        }
-
         validate { credential ->
             if (credential.payload.getClaim(JWT_KEY).asString() != null) {
                 JWTPrincipal(credential.payload)
@@ -41,11 +35,6 @@ fun AuthenticationConfig.jwtCheck() {
     //基础校验
     jwt(name = "basic") {
         verifier(simpleJWT.verifier)
-        skipWhen { call ->
-            val skipPath = arrayListOf("/login")
-            call.request.path() in skipPath
-        }
-
         validate { credential ->
             val session = credential.session<AppSession>()
             if (session?.user != null) {

@@ -99,7 +99,7 @@ websocket       WebSocket 实体和扩展能力
 - 根包只保留应用启动入口。
 - 请求参数和响应对象放在 `api.model`。
 - 数据库实体放在 `persistence.entity`。
-- 数据库连接和 Ktorm 扩展放在 `persistence`。
+- 数据库连接和 Ktorm 扩展放在 `dao`。
 - 异常处理统一放在 `common.error`。
 - 状态页处理与异常处理放在同一包。
 - Redis 配置入口和 Redis 插件实现放在 `infrastructure.cache`。

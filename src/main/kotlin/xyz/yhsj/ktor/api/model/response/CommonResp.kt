@@ -56,6 +56,10 @@ class CommonResp(
         fun login(code: Int = 401, msg: String = "需要登录"): CommonResp = CommonResp(code = code, msg = msg)
 
         @JvmStatic
+        fun systemNotInitialized(msg: String = "系统尚未初始化管理员账号"): CommonResp =
+            CommonResp(code = ResponseCode.SYSTEM_NOT_INITIALIZED, msg = msg)
+
+        @JvmStatic
         fun empty(msg: String = "暂无数据"): CommonResp = CommonResp(msg = msg)
 
         @JvmStatic

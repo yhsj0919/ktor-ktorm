@@ -5,19 +5,20 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import xyz.yhsj.ktor.api.configureApi
 import xyz.yhsj.ktor.common.util.logger
-import xyz.yhsj.ktor.infrastructure.cache.configureRedis
-import xyz.yhsj.ktor.infrastructure.plugins.configureFlyway
-import xyz.yhsj.ktor.infrastructure.plugins.configureHTTP
-import xyz.yhsj.ktor.infrastructure.plugins.configureInit
-import xyz.yhsj.ktor.infrastructure.plugins.configureIntercept
-import xyz.yhsj.ktor.infrastructure.plugins.configureKoin
-import xyz.yhsj.ktor.infrastructure.plugins.configureMonitoring
-import xyz.yhsj.ktor.infrastructure.plugins.configureRouting
-import xyz.yhsj.ktor.infrastructure.plugins.configureSecurity
-import xyz.yhsj.ktor.infrastructure.plugins.configureSerialization
-import xyz.yhsj.ktor.infrastructure.plugins.configureSockets
-import xyz.yhsj.ktor.infrastructure.plugins.configureTemplating
-import xyz.yhsj.ktor.persistence.database.configureDatabaseLifecycle
+import xyz.yhsj.ktor.base.cache.configureRedis
+import xyz.yhsj.ktor.base.plugins.configureFlyway
+import xyz.yhsj.ktor.base.plugins.configureHTTP
+import xyz.yhsj.ktor.base.plugins.configureInit
+import xyz.yhsj.ktor.base.plugins.configureIntercept
+import xyz.yhsj.ktor.base.plugins.configureKoin
+import xyz.yhsj.ktor.base.plugins.configureMonitoring
+import xyz.yhsj.ktor.base.plugins.configurePermission
+import xyz.yhsj.ktor.base.plugins.configureRouting
+import xyz.yhsj.ktor.base.plugins.configureSecurity
+import xyz.yhsj.ktor.base.plugins.configureSerialization
+import xyz.yhsj.ktor.base.plugins.configureSockets
+import xyz.yhsj.ktor.base.plugins.configureTemplating
+import xyz.yhsj.ktor.dao.database.configureDatabaseLifecycle
 
 
 fun main(args: Array<String>) {
@@ -42,6 +43,7 @@ fun Application.module() {
     configureHTTP()
     configureSecurity()
     configureIntercept()
+    configurePermission()
 //        configureAdministration()
     configureMonitoring()
     configureRouting()

@@ -7,7 +7,7 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.routing.get
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.testApplication
-import xyz.yhsj.ktor.infrastructure.plugins.configureSerialization
+import xyz.yhsj.ktor.base.plugins.configureSerialization
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

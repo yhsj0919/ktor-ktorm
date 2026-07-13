@@ -1,6 +1,6 @@
 package xyz.yhsj.ktor.auth.crypto
 
-import xyz.yhsj.ktor.infrastructure.config.DES_KEY
+import xyz.yhsj.ktor.base.config.DES_KEY
 import java.security.Key
 import java.util.*
 import javax.crypto.Cipher
